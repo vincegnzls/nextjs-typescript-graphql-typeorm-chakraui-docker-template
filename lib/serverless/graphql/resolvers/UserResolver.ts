@@ -1,23 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
-import { FindOneOptions } from "typeorm";
-import { User } from "../../entities/User";
-import { IContext } from "../../utils/types";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql"
+import { FindOneOptions } from "typeorm"
+import { User } from "../../entities/User"
+import { IContext } from "../../utils/types"
 
 @ObjectType()
 class FieldError {
-    @Field()
-      field?: string
-    @Field()
-      message?: string
+  @Field()
+  field?: string
+  @Field()
+  message?: string
 }
 
 @ObjectType()
 class UserResponse {
-    @Field(() => [FieldError], { nullable: true })
-      errors?: FieldError[]
-    @Field(() => User, { nullable: true })
-      user?: User
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[]
+  @Field(() => User, { nullable: true })
+  user?: User
 }
 
 @Resolver()
@@ -28,7 +36,7 @@ export class UserResolver {
     @Arg("lastName") lastName: string,
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() context: IContext,
+    @Ctx() context: IContext
   ): Promise<User> {
     const user = await User.create({
       firstName,
@@ -46,25 +54,29 @@ export class UserResolver {
   async login(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() context: IContext,
+    @Ctx() context: IContext
   ): Promise<UserResponse> {
-    const user = await User.findOne({ where:{ email } })
+    const user = await User.findOne({ where: { email } })
 
     if (!user) {
       return {
-        errors: [{
-          field: 'email',
-          message: 'Email does not exist.'
-        }]
+        errors: [
+          {
+            field: "email",
+            message: "Email does not exist.",
+          },
+        ],
       }
     }
 
     if (password !== user.password) {
       return {
-        errors: [{
-          field: 'password',
-          message: 'Incorrect password.'
-        }]
+        errors: [
+          {
+            field: "password",
+            message: "Incorrect password.",
+          },
+        ],
       }
     }
 
@@ -82,17 +94,17 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   async me(@Ctx() context: IContext): Promise<User | null> {
-    const userId = await context.redis.get('userId')
+    const userId = await context.redis.get("userId")
 
     if (!userId) {
       return null
     }
 
-    return await User.findOneOrFail({where: { userId: parseInt(userId) }});
+    return await User.findOneOrFail({ where: { userId: parseInt(userId) } })
   }
 
   @Query(() => User)
   async getUser(@Arg("userId") userId: number): Promise<User> {
-    return await User.findOneOrFail({where: { userId }});
-  }  
+    return await User.findOneOrFail({ where: { userId } })
+  }
 }
