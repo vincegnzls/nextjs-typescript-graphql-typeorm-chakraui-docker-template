@@ -10,6 +10,7 @@ DB_USER=user
 DB_PASS=pass
 DB_NAME=db
 REDIS_URL=redis://redis:6379/0
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:3000/api/graphql
 ```
 
 First, run the development server:
